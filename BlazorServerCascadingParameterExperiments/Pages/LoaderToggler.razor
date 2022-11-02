@@ -1,0 +1,20 @@
+﻿<h2>I was initialized at @dateTimeOffset?.ToString("O")</h2>
+<h4>My desired visibility Value: @newLoaderVisibility with this Thread ID: @threadId</h4>
+
+
+@code {
+    DateTimeOffset? dateTimeOffset;
+    bool newLoaderVisibility;
+    string threadId { get; set; } = string.Empty;
+    [CascadingParameter]
+    public Action<bool> ChangeLoaderVisibilityAction { get; set; } = default!;
+
+    protected override Task OnInitializedAsync()
+    {
+        threadId = Thread.CurrentThread.ManagedThreadId.ToString() ?? string.Empty;
+        dateTimeOffset = DateTimeOffset.UtcNow;
+        newLoaderVisibility = dateTimeOffset.Value.Ticks % 2 == 0;
+        ChangeLoaderVisibilityAction(newLoaderVisibility);
+        return base.OnInitializedAsync();
+    }
+}

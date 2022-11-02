@@ -1,0 +1,63 @@
+﻿@using Microsoft.Fast.Components.FluentUI
+@inherits LayoutComponentBase
+
+<PageTitle>BlazorServerCascadingParameterExperiments</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+    <CascadingValue IsFixed="true" Value="@ChangeLoaderVisibility" TValue="Action<bool>">
+        <main>
+            <div class="top-row px-4">
+                <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            </div>
+            <article class="content px-4">
+                <FluentButton @onclick="() => ReloadBodyAsync()">
+                    Reload Body
+                </FluentButton>
+
+                <p>Loader visibility changes:</p>
+                <ol>
+                    @foreach (var item in LoaderVisibilityChanges)
+                    {
+                        <li>@item</li>
+                    }
+                </ol>
+                @if (LoaderVisible)
+                {
+                    <FluentProgressRing />
+                }
+                @if (ShowBody)
+                {
+                    @Body
+                }
+            </article>
+        </main>
+    </CascadingValue>
+</div>
+
+@code {
+    bool LoaderVisible { get; set; }
+    bool ShowBody { get; set; } = true;
+    List<string> LoaderVisibilityChanges = new();
+
+    public void ChangeLoaderVisibility(bool visible)
+    {
+        //Disabling optimization
+        //if (LoaderVisible == visible)
+        //    return;
+        LoaderVisible = visible;
+        LoaderVisibilityChanges.Add($"LoaderVisible: {LoaderVisible} at {DateTimeOffset.UtcNow.ToString("O")} with Thread ID: {Thread.CurrentThread.ManagedThreadId}{Environment.NewLine}");
+        StateHasChanged();
+    }
+
+    public async Task ReloadBodyAsync()
+    {
+        ShowBody = false;
+        StateHasChanged();
+        await Task.Delay(500);
+        ShowBody = true;
+        StateHasChanged();
+    }
+}
