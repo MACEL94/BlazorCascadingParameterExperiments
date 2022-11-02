@@ -1,20 +1,28 @@
 ﻿<h2>I was initialized at @dateTimeOffset?.ToString("O")</h2>
-<h4>My desired visibility Value: @newLoaderVisibility with this Thread ID: @threadId</h4>
+<h4>My initial Thread ID is: @initialThreadId</h4>
+<h4>My last Thread ID is: @lastThreadId</h4>
 
 
 @code {
     DateTimeOffset? dateTimeOffset;
     bool newLoaderVisibility;
-    string threadId { get; set; } = string.Empty;
+    string initialThreadId { get; set; } = string.Empty;
+    string lastThreadId { get; set; } = string.Empty;
     [CascadingParameter]
     public Action<bool> ChangeLoaderVisibilityAction { get; set; } = default!;
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        threadId = Thread.CurrentThread.ManagedThreadId.ToString() ?? string.Empty;
+        await base.OnInitializedAsync();
+
+        initialThreadId = Thread.CurrentThread.ManagedThreadId.ToString() ?? string.Empty;
         dateTimeOffset = DateTimeOffset.UtcNow;
         newLoaderVisibility = dateTimeOffset.Value.Ticks % 2 == 0;
         ChangeLoaderVisibilityAction(newLoaderVisibility);
-        return base.OnInitializedAsync();
+        var randomSeed = int.Parse(dateTimeOffset.Value.Ticks.ToString()[^3..]);
+        var random = new Random(randomSeed);
+        await Task.Delay(random.Next(100, 2000));
+        lastThreadId = Thread.CurrentThread.ManagedThreadId.ToString();
+        ChangeLoaderVisibilityAction(!newLoaderVisibility);
     }
 }

@@ -8,7 +8,7 @@ Welcome to your new app.
 
 <SurveyPrompt Title="How is Blazor working for you?" />
 
-<LoaderToggler />
-<LoaderToggler />
-<LoaderToggler />
-<LoaderToggler />
+@foreach (var item in Enumerable.Range(0, 100))
+{
+    <LoaderToggler />
+}
